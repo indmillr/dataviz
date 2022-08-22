@@ -30,5 +30,17 @@
          })
          .attr("width", 25)
          .attr("fill", "navy");
+
+      svg.selectAll("text")
+         .data(dataset)
+         .enter()
+         .append("text")
+         .attr("x", (d, i) => {
+            return i * 30;
+         })
+         .attr("y", (d, i) => {
+            return h - 3 * d - 3;
+         })
+         .text((d, i) => d);
    </script>
 </body>
