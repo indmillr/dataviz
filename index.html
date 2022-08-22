@@ -6,6 +6,7 @@
          .data(dataset)
          .enter()
          .append("h2")
-         .text("New Title");
+         .text((d) => d + " USD")
+         .style("font-family", "verdana");
    </script>
 </body>
