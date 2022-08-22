@@ -7,6 +7,12 @@
          .enter()
          .append("h2")
          .text((d) => d + " USD")
-         .style("font-family", "verdana");
+         .style("color", (d) => {
+            if (d < 20) {
+               return "red";
+            } else {
+               return "green";
+            }
+         });
    </script>
 </body>
