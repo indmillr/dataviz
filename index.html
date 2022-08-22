@@ -7,21 +7,19 @@
          req.onload = function () {
             const json = JSON.parse(req.responseText);
             let html = "";
-            // Add your code below this line
             json.forEach(function (val) {
-               // Adding each object keys
-               var keys = Object.keys(val);
-               // Generating new html
                html += "<div class = 'cat'>";
-               // Adding the custom html to each key
-               keys.map(function (key) {
-                  html += "<strong>" + key + "</strong>: " + val[key] + "<br>";
-               });
-
+               // Add your code below this line
+               html +=
+                  "<img src = '" +
+                  val.imageLink +
+                  "' " +
+                  "alt='" +
+                  val.altText +
+                  "'>";
+               // Add your code above this line
                html += "</div><br>";
             });
-
-            // Add your code above this line
             document.getElementsByClassName("message")[0].innerHTML = html;
          };
       };
@@ -54,7 +52,6 @@
       border: 1px solid #0f5897;
    }
 </style>
-
 <h1>Cat Photo Finder</h1>
 <p class="message box">The message will go here</p>
 <p>
