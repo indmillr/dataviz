@@ -1,3 +1,8 @@
+<style>
+   .bar:hover {
+      fill: brown;
+   }
+</style>
 <body>
    <script>
       const dataset = [12, 31, 22, 17, 25, 18, 29, 14, 9];
@@ -18,8 +23,11 @@
          .attr("x", (d, i) => i * 30)
          .attr("y", (d, i) => h - 3 * d)
          .attr("width", 25)
-         .attr("height", (d, i) => d * 3)
-         .attr("fill", "navy");
+         .attr("height", (d, i) => 3 * d)
+         .attr("fill", "navy")
+         // Add your code below this line
+         .attr("class", "bar");
+      // Add your code above this line
 
       svg.selectAll("text")
          .data(dataset)
@@ -27,10 +35,6 @@
          .append("text")
          .text((d) => d)
          .attr("x", (d, i) => i * 30)
-         .attr("y", (d, i) => h - 3 * d - 3)
-         // Add your code below this line
-         .style("font-size", "25px")
-         .attr("fill", "red");
-      // Add your code above this line
+         .attr("y", (d, i) => h - 3 * d - 3);
    </script>
 </body>
