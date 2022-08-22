@@ -26,7 +26,10 @@
          // Add your code below this line
          .data(dataset)
          .enter()
-         .append("circle");
+         .append("circle")
+         .attr("cx", (d) => d[0])
+         .attr("cy", (d) => h - d[1])
+         .attr("r", 5);
 
       // Add your code above this line
    </script>
