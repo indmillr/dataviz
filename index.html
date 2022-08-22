@@ -14,8 +14,12 @@
          .select("body")
          .append("svg")
          .attr("width", w)
-         .attr("height", h)
+         .attr("height", h);
+      svg.selectAll("rect")
+         .data(dataset)
+         .enter()
          .append("rect")
+
          .attr("height", 100)
          .attr("width", 25)
          .attr("x", 0)
