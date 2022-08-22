@@ -1,8 +1,3 @@
-<style>
-   svg {
-      background-color: pink;
-   }
-</style>
 <body>
    <script>
       const dataset = [12, 31, 22, 17, 25, 18, 29, 14, 9];
@@ -15,32 +10,27 @@
          .append("svg")
          .attr("width", w)
          .attr("height", h);
+
       svg.selectAll("rect")
          .data(dataset)
          .enter()
          .append("rect")
-         .attr("x", (d, i) => {
-            return i * 30;
-         })
-         .attr("y", (d, i) => {
-            return h - d * 3;
-         })
-         .attr("height", (d, i) => {
-            return d * 3;
-         })
+         .attr("x", (d, i) => i * 30)
+         .attr("y", (d, i) => h - 3 * d)
          .attr("width", 25)
+         .attr("height", (d, i) => d * 3)
          .attr("fill", "navy");
 
       svg.selectAll("text")
          .data(dataset)
          .enter()
          .append("text")
-         .attr("x", (d, i) => {
-            return i * 30;
-         })
-         .attr("y", (d, i) => {
-            return h - 3 * d - 3;
-         })
-         .text((d, i) => d);
+         .text((d) => d)
+         .attr("x", (d, i) => i * 30)
+         .attr("y", (d, i) => h - 3 * d - 3)
+         // Add your code below this line
+         .style("font-size", "25px")
+         .attr("fill", "red");
+      // Add your code above this line
    </script>
 </body>
