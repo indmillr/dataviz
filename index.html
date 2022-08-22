@@ -5,14 +5,7 @@
          .selectAll("h2")
          .data(dataset)
          .enter()
-         .append("h2")
-         .text((d) => d + " USD")
-         .style("color", (d) => {
-            if (d < 20) {
-               return "red";
-            } else {
-               return "green";
-            }
-         });
+         .append("div")
+         .attr("class", "bar");
    </script>
 </body>
