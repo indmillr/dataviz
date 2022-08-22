@@ -6,11 +6,23 @@
          req.send();
          req.onload = function () {
             const json = JSON.parse(req.responseText);
-            document.getElementsByClassName("message")[0].innerHTML =
-               JSON.stringify(json);
+            let html = "";
             // Add your code below this line
-            console.log(json[2].codeNames[1]);
+            json.forEach(function (val) {
+               // Adding each object keys
+               var keys = Object.keys(val);
+               // Generating new html
+               html += "<div class = 'cat'>";
+               // Adding the custom html to each key
+               keys.map(function (key) {
+                  html += "<strong>" + key + "</strong>: " + val[key] + "<br>";
+               });
+
+               html += "</div><br>";
+            });
+
             // Add your code above this line
+            document.getElementsByClassName("message")[0].innerHTML = html;
          };
       };
    });
