@@ -22,7 +22,9 @@
          .attr("x", (d, i) => {
             return i * 30;
          })
-         .attr("y", 0)
+         .attr("y", (d, i) => {
+            return h - d * 3;
+         })
          .attr("height", (d, i) => {
             return d * 3;
          })
