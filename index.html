@@ -1,20 +1,17 @@
 <script>
    document.addEventListener("DOMContentLoaded", function () {
-      document.getElementById("getMessage").onclick = function () {
+      document.getElementById("getMessage").onclick = () => {
          // Add your code below this line
-         const req = new XMLHttpRequest();
-         req.open("GET", "/json/cats.json", true);
-         req.send();
-         req.onload = function () {
-            const json = JSON.parse(req.responseText);
-            document.getElementsByClassName("message")[0].innerHTML =
-               JSON.stringify(json);
-         };
+         fetch("/json/cats.json")
+            .then((response) => response.json())
+            .then((data) => {
+               document.getElementById("message").innterHTML =
+                  JSON.stringify(data);
+            });
          // Add your code above this line
       };
    });
 </script>
-
 <style>
    body {
       text-align: center;
@@ -41,9 +38,8 @@
       border: 1px solid #0f5897;
    }
 </style>
-
 <h1>Cat Photo Finder</h1>
-<p class="message box">The message will go here</p>
+<p id="message" class="box">The message will go here</p>
 <p>
    <button id="getMessage">Get Message</button>
 </p>
