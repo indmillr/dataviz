@@ -1,0 +1,56 @@
+* {
+   margin: 0;
+   padding: 0;
+}
+
+body {
+   background-color: #eeebd3;
+}
+
+h1:first-child,
+h2 {
+   text-align: center;
+}
+
+.axis-label {
+   font-weight: bold;
+}
+
+#graph {
+   background: #3d4a58;
+   color: #437882;
+   width: 80vw;
+   max-width: 950px;
+   margin: 40px auto;
+   padding: 4px;
+   border: 2px solid #2c3947;
+   position: relative;
+   overflow: auto;
+}
+
+#x-axis,
+#y-axis {
+   stroke: #e48f2f;
+   stroke-width: 1;
+}
+
+#doping.dot {
+   stroke: #437882;
+}
+
+.dot:not(#doping) {
+   stroke: #eeebd3;
+}
+
+#tooltip {
+   position: absolute;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: #0d1321;
+   width: 300px;
+   height: 150px;
+   background: #eeebd3;
+   border-radius: 15px;
+   padding: 10px;
+}
