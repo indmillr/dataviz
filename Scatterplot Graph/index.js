@@ -1,10 +1,10 @@
 import * as d3 from "https://cdn.skypack.dev/d3@6.7.0";
 
-const URL =
+const url =
    "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json";
 
 // The JSON data
-fetch(URL)
+fetch(url)
    .then((response) => response.json())
    .then((data) => console.log(data));
 
@@ -56,12 +56,12 @@ const marginStyle =
    "px";
 
 // Width & height
-const WIDTH = 920 - padding.right - padding.left;
-const HEIGHT = 650 - padding.top - padding.bottom;
+const wide = 920 - padding.right - padding.left;
+const high = 650 - padding.top - padding.bottom;
 
 // x & y scales
-var x = d3.scaleLinear().range([0, WIDTH]);
-var y = d3.scaleTime().range([0, HEIGHT]);
+var x = d3.scaleLinear().range([0, wide]);
+var y = d3.scaleTime().range([0, high]);
 
 // Color scheme
 const color = d3.scaleOrdinal(d3.schemeTableau10);
@@ -87,18 +87,18 @@ const svg = d3
    .attr("id", "axis")
    .attr(
       "width",
-      WIDTH + margin.left + margin.right + padding.left + padding.right
+      wide + margin.left + margin.right + padding.left + padding.right
    )
    .attr(
       "height",
-      HEIGHT + margin.top + margin.bottom + padding.top + padding.bottom
+      high + margin.top + margin.bottom + padding.top + padding.bottom
    )
    .attr("style", paddingStyle + "; " + marginStyle)
    .append("g")
    .attr("transform", "translate(-10,10)");
 
 // Retrieves data in JSON
-d3.json(URL).then((data) => {
+d3.json(url).then((data) => {
    // Updates the place on list and time
    data.forEach((d) => {
       d.Place = +d.Place;
@@ -126,7 +126,7 @@ d3.json(URL).then((data) => {
    // Axes
    svg.append("g")
       .attr("id", "x-axis")
-      .attr("transform", "translate(80," + HEIGHT + ")")
+      .attr("transform", "translate(80," + high + ")")
       .call(xAxis);
 
    svg.append("g")
@@ -153,7 +153,7 @@ d3.json(URL).then((data) => {
       .style("fill", (d) => color(d.Doping !== "")) // Adds diferent colors to dots
       .on("mouseover", function (e) {
          tooltip.style("display", "block");
-         tooltip.transition().duration(150).style("opacity", 0.9);
+         tooltip.transition().duration(0).style("opacity", 1);
          tooltip.attr("data-year", e.target.getAttribute("data-xvalue"));
          tooltip
             .html(
@@ -176,7 +176,7 @@ d3.json(URL).then((data) => {
          tooltip
             .style("display", "none")
             .transition()
-            .duration(150)
+            .duration(0)
             .style("opacity", 0);
       });
 
@@ -189,9 +189,9 @@ d3.json(URL).then((data) => {
       .enter()
       .append("g")
       .attr("class", "legend-label")
-      .attr("transform", (c, i) => "translate(0," + (HEIGHT / 2 - i * 20) + ")")
+      .attr("transform", (c, i) => "translate(0," + (high / 2 - i * 20) + ")")
       .append("rect")
-      .attr("x", WIDTH - 18)
+      .attr("x", wide - 18)
       .attr("width", 18)
       .attr("height", 18)
       .style("fill", color);
@@ -204,40 +204,16 @@ d3.json(URL).then((data) => {
       .attr(
          "transform",
          (c, i) =>
-            "translate(" + (WIDTH + 5) + "," + (HEIGHT / 2 - i * 20 + 16) + ")"
+            "translate(" + (wide + 5) + "," + (high / 2 - i * 20 + 16) + ")"
       )
       .text((c) => (c ? "Not doped" : "Doped"));
-
-   // Adds sources
-   d3.select("#graph").append("hr").style("border-color", "#eee");
-
-   d3.select("#graph")
-      .append("h1")
-      .text("Sources")
-      .style("padding-left", "40px");
-
-   d3.select("#graph")
-      .append("ul")
-      .selectAll("li")
-      .data(
-         data.filter(
-            (d, i, self) =>
-               d.URL !== "" && i === self.findIndex((v) => v.URL === d.URL)
-         )
-      )
-      .enter()
-      .append("li")
-      .append("a")
-      .attr("href", (d) => d.URL)
-      .attr("target", "_blank")
-      .text((d) => d.URL);
 });
 
 /* Labels */
 svg.append("text")
    .attr("class", "axis-label")
-   .attr("x", WIDTH / 2 + 80) // Offsets based on translate of x axis
-   .attr("y", HEIGHT + 25)
+   .attr("x", wide / 2 + 80) // Offsets based on translate of x axis
+   .attr("y", high + 25)
    .attr("dy", "0.8em")
    .text("Year");
 
@@ -247,4 +223,4 @@ svg.append("text")
    .attr("y", 25)
    .attr("x", -375)
    .attr("dy", "0.8em")
-   .text("Best Time (minutes)");
+   .text("Best Time");
