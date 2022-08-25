@@ -1,10 +1,20 @@
-import * as d3 from "https://cdn.skypack.dev/d3@6.7.0";
-// temperature data URL
+import * as d3 from "https://cdn.skypack.dev/d3@7.6.1";
+import * as d3Format from "https://cdn.skypack.dev/d3-format@3.1.0";
+const margin = { right: 50, top: 100, left: 100, bottom: 150 };
 
-var URL_temperatureData =
-   "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json";
+let height = 500 - margin.top - margin.bottom;
+let width = 1250 - margin.left - margin.right;
 
-var month = [
+const url =
+   "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json";
+
+const yearParse = d3.timeParse("%Y");
+const yearFormat = d3.timeFormat("%Y");
+
+const monthParse = d3.timeParse("%b");
+const monthFormat = d3.timeFormat("%b");
+
+const month = [
    "January",
    "February",
    "March",
@@ -18,213 +28,156 @@ var month = [
    "November",
    "December",
 ];
+const revMonth = month.reverse();
 
-var colors = [
-   "#5e4fa2",
-   "#3288bd",
-   "#66c2a5",
-   "#abdda4",
-   "#e6f598",
-   "#ffffbf",
-   "#fee08b",
-   "#fdae61",
-   "#f46d43",
-   "#d53e4f",
-   "#9e0142",
-];
+//append the canvas to body
+const svg = d3
+   .select("body")
+   .append("svg")
+   .attr("width", width + margin.left + margin.right)
+   .attr("height", height + margin.top + margin.bottom);
 
-var buckets = colors.length;
+//create chart group
+const chartGroup = svg
+   .append("g")
+   .attr("transform", `translate(${margin.left},${margin.top})`);
 
-var margin = {
-   top: 5,
-   right: 0,
-   bottom: 90,
-   left: 100,
-};
-var width = 1200 - margin.left - margin.right;
-var height = 550 - margin.top - margin.bottom;
-var legendElementWidth = 35;
+//append tooltip
+const tooltip = d3
+   .select("body")
+   .append("div")
+   .attr("class", "tooltip")
+   .attr("id", "tooltip")
+   .style("opacity", 0);
 
-var axisYLabelX = -65;
-var axisYLabelY = height / 2;
+d3.json(url).then((data) => {
+   //console.log(data)
+   const baseTemp = data.baseTemperature;
+   const monthVar = data.monthlyVariance;
+   console.log(monthVar);
+   //minimum and maximum temperature variance
+   const minVar = d3.min(monthVar, (d) => d.variance);
+   const maxVar = d3.max(monthVar, (d) => d.variance);
+   //minimum and maximum years
+   const minYear = d3.min(monthVar, (d) => d.year);
+   const maxYear = d3.max(monthVar, (d) => d.year);
+   const differenceYear = maxYear - minYear;
+   const colors = d3
+      .scaleSequential(d3.interpolateViridis)
+      .domain([baseTemp + minVar, baseTemp + maxVar]);
 
-var axisXLabelX = width / 2;
-var axisXLabelY = height + 45;
+   //set up x
+   const xValue = (d) => yearParse(d.year);
+   const xScale = d3
+      .scaleTime()
+      .range([0, width])
+      .domain(d3.extent(monthVar, (d) => yearParse(d.year)));
+   const xMap = (d) => xScale(xValue(d));
+   const xAxis = d3
+      .axisBottom(xScale)
+      .tickSize(16, 0)
+      .tickFormat(d3.timeFormat("%Y"));
 
-d3.json(URL_temperatureData, function (error, data) {
-   if (error) throw error;
+   //set up y
+   const yValue = (d) => d.month - 1;
+   const yScale = d3.scaleLinear().range([0, height]).domain([0, 11]);
+   const yMap = (d) => yScale(yValue(d));
+   const yAxis = d3
+      .axisLeft(yScale)
+      .tickFormat((d, i) => `${month[12 - (d + 1)]}`);
 
-   var baseTemp = data.baseTemperature;
-   var temperatureData = data.monthlyVariance;
-
-   var yearData = temperatureData.map(function (obj) {
-      return obj.year;
-   });
-   yearData = yearData.filter(function (v, i) {
-      return yearData.indexOf(v) == i;
-   });
-
-   var varianceData = temperatureData.map(function (obj) {
-      return obj.variance;
-   });
-
-   var lowVariance = d3.min(varianceData);
-   var highVariance = d3.max(varianceData);
-
-   var lowYear = d3.min(yearData);
-   var highYear = d3.max(yearData);
-
-   var minDate = new Date(lowYear, 0);
-   var maxDate = new Date(highYear, 0);
-
-   var gridWidth = width / yearData.length;
-   var gridHeight = height / month.length;
-
-   var colorScale = d3.scale
-      .quantile()
-      .domain([lowVariance + baseTemp, highVariance + baseTemp])
-      .range(colors);
-
-   var svg = d3
-      .select("#chart")
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-   var div = d3
-      .select("#chart")
-      .append("div")
-      .attr("class", "tooltip")
-      .style("opacity", 0);
-
-   var monthLabels = svg
-      .selectAll(".monthLabel")
-      .data(month)
-      .enter()
+   //add title text
+   chartGroup
       .append("text")
-      .text(function (d) {
-         return d;
-      })
-      .attr("x", 0)
-      .attr("y", function (d, i) {
-         return i * gridHeight;
-      })
-      .style("text-anchor", "end")
-      .attr("transform", "translate(-6," + gridHeight / 1.5 + ")")
-      .attr("class", "monthLabel scales axis axis-months");
+      .attr("class", "text")
+      .attr("id", "title")
+      .text("Heat Map")
+      .attr("text-anchor", "middle")
+      .style("font-size", 36)
+      .attr("x", width / 2)
+      .attr("y", 0 - margin.top / 2);
 
-   var xScale = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
+   chartGroup
+      .append("text")
+      .attr("class", "text")
+      .attr("id", "description")
+      .attr("text-anchor", "middle")
+      .text("Base Temp: 8.66°C")
+      .attr("x", width / 2)
+      .attr("y", 24 - margin.top / 2);
 
-   var xAxis = d3.svg
-      .axis()
-      .scale(xScale)
-      .orient("bottom")
-      .ticks(d3.time.years, 10);
-
-   svg.append("g")
-      .attr("class", "axis axis-years")
-      .attr("transform", "translate(0," + (height + 1) + ")")
+   //x-axis
+   chartGroup
+      .append("g")
+      .attr("class", "x axis")
+      .attr("id", "x-axis")
+      .attr("transform", `translate(0,${height + height / 12})`)
       .call(xAxis);
 
-   svg.append("g")
-      .attr("transform", "translate(" + axisYLabelX + ", " + axisYLabelY + ")")
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("transform", "rotate(-90)")
-      .attr("class", "axislabel")
-      .text("Months");
+   //y-axis
+   chartGroup
+      .append("g")
+      .attr("class", "y axis hidden")
+      .attr("id", "y-axis")
+      .attr("transform", `translate(0,${height / 12 / 2})`)
+      .call(yAxis);
 
-   svg.append("g")
-      .attr("transform", "translate(" + axisXLabelX + ", " + axisXLabelY + ")")
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("class", "axislabel")
-      .text("Years");
-
-   var temps = svg.selectAll(".years").data(temperatureData, function (d) {
-      return d.year + ":" + d.month;
-   });
-
-   temps
+   //chart
+   chartGroup
+      .append("g")
+      .selectAll("rect")
+      .data(monthVar)
       .enter()
       .append("rect")
-      .attr("x", function (d) {
-         return (d.year - lowYear) * gridWidth;
+      .attr("class", "cell")
+      .attr("x", (d) => xMap(d))
+      .attr("y", (d) => yMap(d))
+      .attr("rx", 1)
+      .attr("ry", 1)
+      .attr("width", width / differenceYear - 0.25)
+      .attr("height", height / 12 + 2.25)
+      .attr("data-month", (d) => d.month - 1)
+      .attr("data-year", (d) => d.year)
+      .attr("data-temp", (d) => baseTemp + d.variance)
+      .style("fill", (d, i) => colors(d.variance + baseTemp))
+      .on("mouseover", (d) => {
+         tooltip.transition().duration(50).style("opacity", 0.9);
+
+         tooltip.attr("data-year", d.year);
+         tooltip.attr("data-temp", d.variance);
+         tooltip
+            .html(
+               `Month: ${month[12 - d.month]}<br/>Year: ${d.year}
+<br/>Variance: ${d.variance}°C`
+            )
+            .style("left", d3.event.pageX - 75 + "px")
+            .style("top", d3.event.pageY - 100 + "px");
       })
-      .attr("y", function (d) {
-         return (d.month - 1) * gridHeight;
-      })
-      .attr("rx", 0)
-      .attr("ry", 0)
-      .attr("width", gridWidth)
-      .attr("height", gridHeight)
-      .style("fill", "white")
-      .on("mouseover", function (d) {
-         div.transition().duration(100).style("opacity", 0.8);
-         div.html(
-            "<span class='year'>" +
-               d.year +
-               " - " +
-               month[d.month - 1] +
-               "</span><br>" +
-               "<span class='temperature'>" +
-               Math.floor((d.variance + baseTemp) * 1000) / 1000 +
-               " &#8451" +
-               "</span><br>" +
-               "<span class='variance'>" +
-               d.variance +
-               " &#8451" +
-               "</span>"
-         )
-            .style("left", d3.event.pageX - $(".tooltip").width() / 2 + "px")
-            .style("top", d3.event.pageY - 75 + "px");
-      })
-      .on("mouseout", function (d) {
-         div.transition().duration(200).style("opacity", 0);
+      .on("mouseout", () => {
+         tooltip.transition().duration(50).style("opacity", 0);
       });
 
-   temps
-      .transition()
-      .duration(1000)
-      .style("fill", function (d) {
-         return colorScale(d.variance + baseTemp);
-      });
+   const legend = d3
+      .scaleLinear()
+      .domain([minVar, maxVar])
+      .range([colors(baseTemp + minVar), colors(baseTemp + maxVar)]);
 
-   var legend = svg
-      .selectAll(".legend")
-      .data([0].concat(colorScale.quantiles()), function (d) {
-         return d;
-      });
+   svg.append("g")
+      .attr("class", "legend")
+      .attr("id", "legend")
+      .attr("font-size", 8)
+      .attr(
+         "transform",
+         `translate(${margin.left},${height + margin.top + margin.bottom / 2})`
+      );
 
-   legend.enter().append("g").attr("class", "legend");
+   const legendLinear = d3
+      .legendColor()
+      .shape("rect")
+      .shapeWidth(15)
+      .cells(20)
+      .orient("horizontal")
+      .scale(legend);
 
-   legend
-      .append("rect")
-      .attr("x", function (d, i) {
-         return legendElementWidth * i + (width - legendElementWidth * buckets);
-      })
-      .attr("y", height + 50)
-      .attr("width", legendElementWidth)
-      .attr("height", gridHeight / 2)
-      .style("fill", function (d, i) {
-         return colors[i];
-      });
-
-   legend
-      .append("text")
-      .attr("class", "scales")
-      .text(function (d) {
-         return Math.floor(d * 10) / 10;
-      })
-      .attr("x", function (d, i) {
-         return (
-            legendElementWidth * i +
-            Math.floor(legendElementWidth / 2) -
-            6 +
-            (width - legendElementWidth * buckets)
-         );
-      })
-      .attr("y", height + gridHeight + 50);
+   svg.select(".legend").call(legendLinear);
 });
